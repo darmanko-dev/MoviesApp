@@ -1,26 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import { Route , Redirect , Switch} from 'react-router-dom';
+import { ToastContainer  } from 'react-toastify'; 
+import Movies from './Components/movies';
+import Customers from './Components/customers';
+import Rentals from './Components/rentals';
+import NotFound from './Components/notFound';
+import NavBar from './Components/common/navBar';
+import MoviesForm from './Components/moviesForm';
+import LoginForm from './Components/loginForm';
+import RegisterForm from './Components/registerForm';
+import MovieForm from './Components/movieForm';
+import Logout from './Components/logout';
+import ProtectedRoute from './Components/common/protectedRoute';
+import auth from './services/authService';
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+
+
+
+class App extends Component {
+  state = {  };
+
+  componentDidMount() {
+   const user = auth.getCurrentUser();
+   this.setState({ user });
+  };
+
+  render() {
+    const  { user } = this.state;    
+    return (
+      <React.Fragment>
+      <ToastContainer />
+      <NavBar user = {user} />
+      <main className="container">
+          <Switch>
+            <Route path="/register" component={RegisterForm} />
+            <Route path="/movies/new" component={MovieForm} />
+            <Route path="/login" component={LoginForm} />
+            <Route path="/logout" component={Logout} />
+            <ProtectedRoute path="/movies/:id" component = { MovieForm } />
+            <Route path="/movies" 
+                render = {props => <Movies  {...props} user={user} />} 
+            />
+            <Route path="/customers" component={Customers} />
+            <Route path="/rentals" component={Rentals}></Route>
+            <Route path="/not-found" component={NotFound}></Route>
+            <Redirect from='/' exact to= '/movies' />
+            <Redirect to = '/not-found' />
+          </Switch>
+      </main>
+      </React.Fragment>
+    );
+  }
+};
 
 export default App;
